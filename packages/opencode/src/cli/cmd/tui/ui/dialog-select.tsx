@@ -130,6 +130,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     if (evt.name === "return") {
       const option = selected()
       if (option) {
+        evt.preventDefault()
         if (option.onSelect) option.onSelect(dialog)
         props.onSelect?.(option)
       }
@@ -179,7 +180,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
             focusedTextColor={theme.textMuted}
             ref={(r) => {
               input = r
-              input.focus()
+              setTimeout(() => input.focus(), 1)
             }}
             placeholder="Enter search term"
           />
