@@ -166,6 +166,14 @@ export type KeybindsConfig = {
    * Previous history item
    */
   history_next?: string
+  /**
+   * Next child session
+   */
+  session_child_cycle?: string
+  /**
+   * Previous child session
+   */
+  session_child_cycle_reverse?: string
 }
 
 export type AgentConfig = {
@@ -2338,6 +2346,7 @@ export type FindFilesData = {
   query: {
     directory?: string
     query: string
+    dirs?: "true" | "false"
   }
   url: "/find/file"
 }
