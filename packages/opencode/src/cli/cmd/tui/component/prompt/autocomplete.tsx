@@ -164,7 +164,6 @@ export function Autocomplete(props: {
   )
 
   const agents = createMemo(() => {
-    if (store.index !== 0) return []
     const agents = sync.data.agent
     return agents
       .filter((agent) => !agent.builtIn && agent.mode !== "primary")
@@ -211,7 +210,6 @@ export function Autocomplete(props: {
           display: "/undo",
           description: "undo the last message",
           onSelect: () => {
-            hide()
             command.trigger("session.undo")
           },
         },
@@ -242,6 +240,16 @@ export function Autocomplete(props: {
           display: "/rename",
           description: "rename session",
           onSelect: () => command.trigger("session.rename"),
+        },
+        {
+          display: "/copy",
+          description: "copy session transcript to clipboard",
+          onSelect: () => command.trigger("session.copy"),
+        },
+        {
+          display: "/export",
+          description: "export session transcript to file",
+          onSelect: () => command.trigger("session.export"),
         },
         {
           display: "/timeline",
@@ -323,7 +331,7 @@ export function Autocomplete(props: {
     const currentFilter = filter()
     if (!currentFilter) return mixed.slice(0, 10)
     const result = fuzzysort.go(currentFilter, mixed, {
-      keys: ["display", "description", (obj) => obj.aliases?.join(" ") ?? ""],
+      keys: [(obj) => obj.display.trimEnd(), "description", (obj) => obj.aliases?.join(" ") ?? ""],
       limit: 10,
     })
     return result.map((arr) => arr.obj)
@@ -365,7 +373,7 @@ export function Autocomplete(props: {
 
   function hide() {
     const text = props.input().plainText
-    if (store.visible === "/" && !text.endsWith(" ")) {
+    if (store.visible === "/" && !text.endsWith(" ") && text.startsWith("/")) {
       const cursor = props.input().logicalCursor
       props.input().deleteRange(0, 0, cursor.row, cursor.col)
     }
@@ -385,7 +393,9 @@ export function Autocomplete(props: {
             return
           }
           // Check if a space was typed after the trigger character
-          const currentText = props.input().getTextRange(store.index + 1, props.input().cursorOffset + 1)
+          const currentText = props
+            .input()
+            .getTextRange(store.index + 1, props.input().cursorOffset + 1)
           if (currentText.includes(" ")) {
             hide()
           }
